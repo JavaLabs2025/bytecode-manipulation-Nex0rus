@@ -3,6 +3,8 @@ package org.example.service;
 import org.example.model.ClassInfo;
 import org.example.visitor.ClassInfoVisitor;
 import org.objectweb.asm.ClassReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,11 +14,9 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class JarProcessor {
-    private static final Logger log = Logger.getLogger(JarProcessor.class.getName());
+    private static final Logger log = LoggerFactory.getLogger(JarProcessor.class);
 
     public List<ClassInfo> process(Path jarPath) throws IOException {
         List<ClassInfo> classes = new ArrayList<>();
@@ -34,7 +34,7 @@ public class JarProcessor {
             }
         }
 
-        log.info(() -> String.format("Processed %d classes from %s", classes.size(), jarPath.getFileName()));
+        log.info("Processed {} classes from {}", classes.size(), jarPath.getFileName());
         return classes;
     }
 
@@ -46,14 +46,11 @@ public class JarProcessor {
         try (InputStream inputStream = jarFile.getInputStream(entry)) {
             ClassReader classReader = new ClassReader(inputStream);
             ClassInfoVisitor collector = new ClassInfoVisitor();
-            
             classReader.accept(collector, ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
-            
             return collector.getClassInfo();
         } catch (Exception e) {
-            log.log(Level.WARNING, "Failed to process class: " + entry.getName(), e);
+            log.error("Failed to process class: {}", entry.getName(), e);
             return null;
         }
     }
 }
-
