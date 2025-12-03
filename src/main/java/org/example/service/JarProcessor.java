@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
@@ -27,7 +26,10 @@ public class JarProcessor {
             while (entries.hasMoreElements()) {
                 JarEntry entry = entries.nextElement();
                 if (isClassFile(entry)) {
-                    classes.add(processClassEntry(jarFile, entry));
+                    ClassInfo classInfo = processClassEntry(jarFile, entry);
+                    if (classInfo != null) {
+                        classes.add(classInfo);
+                    }
                 }
             }
         }
@@ -50,6 +52,7 @@ public class JarProcessor {
             return collector.getClassInfo();
         } catch (Exception e) {
             log.log(Level.WARNING, "Failed to process class: " + entry.getName(), e);
+            return null;
         }
     }
 }
