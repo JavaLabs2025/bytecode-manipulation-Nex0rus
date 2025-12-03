@@ -82,7 +82,7 @@ public class ByteCodePrinter {
 
     public void printBubbleSortBytecode() throws IOException {
         var cn = new ClassNode();
-        var classFileBytes = Files.readAllBytes(Path.of("build/classes/java/main/org/itmo/lab1/example/BubbleSort.class"));
+        var classFileBytes = Files.readAllBytes(Path.of("build/classes/java/main/org/example/example/BubbleSort.class"));
         var classReader = new ClassReader(classFileBytes);
         classReader.accept(cn, ClassReader.EXPAND_FRAMES);
         printBytecode(cn);
