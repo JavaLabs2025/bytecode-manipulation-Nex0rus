@@ -86,55 +86,16 @@ public class MetricsCalculator {
     }
 
     private int calculateInheritanceDepth(ClassInfo classInfo, Map<String, ClassInfo> classMap) {
-        int classChainDepth = calculateClassDepth(classInfo.getSuperName(), classMap);
-
-        int interfaceDepth = 0;
-        for (String iface : classInfo.getInterfaces()) {
-            int depth = calculateInterfaceDepth(iface, classMap, 1);
-            if (depth > interfaceDepth) {
-                interfaceDepth = depth;
-            }
-        }
-
-        return Math.max(classChainDepth, interfaceDepth);
-    }
-
-    private int calculateClassDepth(String superName, Map<String, ClassInfo> classMap) {
-        int depth = 0;
-        String current = superName;
+        int depth = 1;
+        String current = classInfo.getSuperName();
 
         while (current != null && !JAVA_LANG_OBJECT.equals(current)) {
             depth++;
             ClassInfo superClass = classMap.get(current);
-            if (superClass != null) {
-                current = superClass.getSuperName();
-            } else {
-                break;
-            }
+            current = (superClass != null) ? superClass.getSuperName() : null;
         }
 
         return depth;
-    }
-
-    private int calculateInterfaceDepth(String interfaceName, Map<String, ClassInfo> classMap, int currentDepth) {
-        if (interfaceName == null) {
-            return currentDepth;
-        }
-
-        ClassInfo iface = classMap.get(interfaceName);
-        if (iface == null) {
-            return currentDepth;
-        }
-
-        int maxDepth = currentDepth;
-        for (String parentInterface : iface.getInterfaces()) {
-            int depth = calculateInterfaceDepth(parentInterface, classMap, currentDepth + 1);
-            if (depth > maxDepth) {
-                maxDepth = depth;
-            }
-        }
-
-        return maxDepth;
     }
 
     private int countOverriddenMethods(ClassInfo classInfo, Map<String, ClassInfo> classMap) {
